@@ -12,7 +12,7 @@ const orbitron = Orbitron({ subsets: ["latin"], variable: "--font-orbitron" });
 const orbit = Orbit({ weight: "400", subsets: ["latin"], variable: "--font-orbit" });
 
 export const metadata: Metadata = {
-  title: "Music Site",
+  title: "Museboxd | Your Music Hub",
   description: "Rate and review your favorite songs and albums",
 };
 
