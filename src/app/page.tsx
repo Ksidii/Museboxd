@@ -26,6 +26,12 @@ const albumReviews = [
   { id: 3, title: "In Rainbows", artist: "Radiohead", quote: "WOW! A masterpiece.", user: "User 123", rating: 6, coverUrl: "/in-rainbows.jpg", avatarUrl: "/avatar.jpg" },
 ];
 
+const recentNews = [
+  { id: 1, title: "Lorem Ipsum", excerpt: "Lorem Ipsum has been the industry's standard dummy text", coverUrl: "/hero-image.jpg" },
+  { id: 2, title: "Lorem Ipsum", excerpt: "Lorem Ipsum has been the industry's standard dummy text", coverUrl: "/hero-image.jpg" },
+  { id: 3, title: "Lorem Ipsum", excerpt: "Lorem Ipsum has been the industry's standard dummy text", coverUrl: "/hero-image.jpg" },
+];
+
 // ==========================================
 // 2. KOMPONENT GWIAZDEK
 // ==========================================
@@ -102,9 +108,7 @@ export default function Home() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full mb-6">
           
-          {/* ================================== */}
           {/* KOLUMNA LEWA: LATEST SONG REVIEWS */}
-          {/* ================================== */}
           <div className="flex flex-col w-full">
             <div className="w-full mb-4">
               <h2 className="font-orbitron font-bold text-[20px] text-text uppercase mb-1">
@@ -115,14 +119,13 @@ export default function Home() {
 
             <div className="flex flex-col gap-4">
               {songReviews.map((review) => (
-                // ZMIANA: Usunięto rounded-sm, dodano border border-effect
                 <div key={review.id} className="w-full h-30 bg-text text-brand relative border border-effect">
                   
                   <div className="absolute top-2 left-2 w-15 h-15 border border-brand/20">
                     <Image src={review.coverUrl} alt={review.title} fill className="object-cover" />
                   </div>
                   
-                  <h3 className="absolute top-2 left-19 font-orbitron font-bold text-[16px] underline decoration-brand underline-offset-2">
+                  <h3 className="absolute top-2 left-19 font-orbitron font-bold text-[16px] underline decoration-brand underline-offset-2 truncate pr-2">
                     {review.title}
                   </h3>
                   <p className="absolute top-7 left-19 font-orbit text-[14px]">
@@ -138,7 +141,6 @@ export default function Home() {
                   </p>
 
                   <div className="absolute bottom-2 left-2 flex items-center gap-2">
-                    {/* Powiększono lekko awatar (w-6 h-6) żeby był lepiej widoczny */}
                     <div className="relative w-6 h-6 rounded-full overflow-hidden bg-brand">
                        <Image src={review.avatarUrl} alt={review.user} fill className="object-cover" />
                     </div>
@@ -153,9 +155,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* ================================== */}
           {/* KOLUMNA PRAWA: LATEST ALBUM REVIEWS*/}
-          {/* ================================== */}
           <div className="flex flex-col w-full">
             <div className="w-full mb-4">
               <h2 className="font-orbitron font-bold text-[20px] text-text uppercase mb-1">
@@ -166,14 +166,13 @@ export default function Home() {
 
             <div className="flex flex-col gap-4">
               {albumReviews.map((review) => (
-                // ZMIANA: Usunięto rounded-sm, dodano border border-effect
                 <div key={review.id} className="w-full h-30 bg-text text-brand relative border border-effect">
                   
                   <div className="absolute top-2 left-2 w-15 h-15 border border-brand/20">
                     <Image src={review.coverUrl} alt={review.title} fill className="object-cover" />
                   </div>
                   
-                  <h3 className="absolute top-2 left-19 font-orbitron font-bold text-[16px] underline decoration-brand underline-offset-2">
+                  <h3 className="absolute top-2 left-19 font-orbitron font-bold text-[16px] underline decoration-brand underline-offset-2 truncate pr-2">
                     {review.title}
                   </h3>
                   <p className="absolute top-7 left-19 font-orbit text-[14px]">
@@ -201,7 +200,6 @@ export default function Home() {
 
         </div>
 
-        {/* --- TEKST NA SAMYM DOLE SEKCJI --- */}
         <div className="w-full text-center mt-2">
           <p className="font-orbit text-[16px] text-text">
             Start adding your own{" "}
@@ -209,6 +207,57 @@ export default function Home() {
             {" "}or{" "}
             <Link href="/albums" className="underline underline-offset-4 hover:text-effect transition-colors">albums&apos;</Link>
             {" "}reviews.
+          </p>
+        </div>
+
+      </section>
+
+      {/* --- SEKCJA 4: RECENT NEWS --- */}
+      <section className="flex flex-col w-full max-w-266.25">
+        
+        {/* Nagłówek i kreska */}
+        <div className="w-full mb-6">
+          <h2 className="font-orbitron font-bold text-[20px] text-text uppercase mb-1">
+            RECENT NEWS
+          </h2>
+          <div className="w-full h-px bg-text"></div>
+        </div>
+
+        {/* 3 Kolumny artykułów (siatka równo dzieląca 1065px na 3) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-6">
+          {recentNews.map((news) => (
+            // Karta: wysokość 310px, overflow-hidden zapobiega wylewaniu się tła
+            <div key={news.id} className="relative w-full h-77.5 overflow-hidden">
+              
+              {/* Tło obrazkowe zajmujące CAŁĄ kartę */}
+              <Image 
+                src={news.coverUrl} 
+                alt={news.title} 
+                fill 
+                className="object-cover" 
+              />
+              
+              {/* Prostokąt tekstowy nasunięty od dołu na 110px. Zostawia górne 200px obrazka! */}
+              {/* Zastosowano bg-text/90 dla lekko obniżonego krycia (90%) */}
+              <div className="absolute bottom-0 w-full h-27.5 bg-text/90 p-4 flex flex-col justify-start">
+                <h3 className="font-orbitron font-bold text-[16px] text-brand mb-1">
+                  {news.title}
+                </h3>
+                <p className="font-orbit text-[14px] text-brand leading-relaxed">
+                  {news.excerpt}
+                </p>
+              </div>
+
+            </div>
+          ))}
+        </div>
+
+        {/* Tekst na samym dole (Check out all of the news...) */}
+        <div className="w-full text-center">
+          <p className="font-orbit text-[16px] text-text">
+            Check out all of the{" "}
+            <Link href="/news" className="underline underline-offset-4 hover:text-effect transition-colors">news</Link>
+            {" "}in the music industry.
           </p>
         </div>
 
