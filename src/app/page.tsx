@@ -2,18 +2,39 @@ import Image from "next/image";
 import Link from "next/link";
 
 // ==========================================
-// 1. DANE TESTOWE (MOCK DATA)
+// 1. DEEZER API
 // ==========================================
+async function getDeezerNewReleases() {
+  try {
+    // API Deezera jest otwarte, pobieramy aktualne top albumy
+    // Dodajemy revalidate, by Next.js odświeżał listę co godzinę (3600 sekund)
+    const response = await fetch('https://api.deezer.com/chart/0/albums', {
+      next: { revalidate: 3600 } 
+    });
 
-const newReleasesAlbums = [
-  { id: 1, title: "Sempiternal", coverUrl: "/sempiternal.jpg" },
-  { id: 2, title: "In Rainbows", coverUrl: "/in-rainbows.jpg" },
-  { id: 3, title: "AM", coverUrl: "/am.jpg" },
-  { id: 4, title: "amo", coverUrl: "/amo.jpg" },
-  { id: 5, title: "Suicide Season", coverUrl: "/suicide-season.jpg" },
-  { id: 6, title: "Steal This Album", coverUrl: "/steal-this-album.jpg" },
-];
+    if (!response.ok) {
+       console.error("Błąd pobierania danych z Deezera");
+       return [];
+    }
 
+    const data = await response.json();
+
+    // Formatujemy dane i bierzemy tylko 6 pierwszych wyników
+    // Od razu definiujemy typy, żeby TypeScript (ESLint) nie krzyczał o błąd 'any'
+    return data.data.slice(0, 6).map((album: { id: number; title: string; cover_xl: string; cover_medium: string }) => ({
+      id: album.id.toString(),
+      title: album.title,
+      coverUrl: album.cover_xl || album.cover_medium, 
+    }));
+  } catch (error) {
+    console.error("Błąd połączenia z Deezerem:", error);
+    return [];
+  }
+}
+
+// ==========================================
+// 2. DANE TESTOWE (MOCK DATA - reszta strony)
+// ==========================================
 const songReviews = [
   { id: 1, title: "Can You Feel My Heart", album: "Sempiternal", artist: "Bring Me The Horizon", quote: "This song is amazing!", user: "User 123", rating: 5, coverUrl: "/sempiternal.jpg", avatarUrl: "/avatar.jpg" },
   { id: 2, title: "MANTRA", album: "amo", artist: "Bring Me The Horizon", quote: "This song is catchy but idk...", user: "User 123", rating: 3, coverUrl: "/amo.jpg", avatarUrl: "/avatar.jpg" },
@@ -32,8 +53,15 @@ const recentNews = [
   { id: 3, title: "Lorem Ipsum", excerpt: "Lorem Ipsum has been the industry's standard dummy text", coverUrl: "/hero-image.jpg" },
 ];
 
+const featureTexts = [
+  "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make.",
+  "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make.",
+  "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make.",
+  "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make."
+];
+
 // ==========================================
-// 2. KOMPONENT GWIAZDEK
+// 3. KOMPONENT GWIAZDEK
 // ==========================================
 const StarRating = ({ rating }: { rating: number }) => {
   return (
@@ -58,9 +86,12 @@ const StarRating = ({ rating }: { rating: number }) => {
 };
 
 // ==========================================
-// 3. GŁÓWNA STRONA
+// 4. GŁÓWNA STRONA (Async)
 // ==========================================
-export default function Home() {
+export default async function Home() {
+  // Wywołujemy funkcję z Deezera
+  const newReleasesAlbums = await getDeezerNewReleases();
+
   return (
     <div className="w-full flex flex-col items-center pt-17 pb-17 px-4 gap-17">
       
@@ -82,33 +113,79 @@ export default function Home() {
         </p>
       </section>
 
-      {/* --- SEKCJA 2: NEW RELEASES --- */}
+      {/* --- SEKCJA 2: WITH MUSEBOXD YOU CAN --- */}
+      <section className="flex flex-col w-full max-w-266.25">
+        <div className="w-full mb-6">
+          <h2 className="font-orbitron font-bold text-[20px] text-text uppercase mb-1">
+            WITH MUSEBOXD YOU CAN
+          </h2>
+          <div className="w-full h-px bg-text"></div>
+        </div>
+
+        <div className="flex flex-col items-center gap-4.5 w-full mb-6">
+          {featureTexts.map((text, index) => (
+            <div 
+              key={index} 
+              className="flex items-center justify-center w-full max-w-212.5 min-h-22.5 bg-text border-2 border-effect rounded-[15px] px-6 py-4 text-center"
+            >
+              <p className="font-orbitron font-bold text-[20px] text-brand leading-tight">
+                {text}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="w-full text-center">
+          <p className="font-orbit text-[16px] text-text">
+            Find out what else does Museboxd have to offer... Click{" "}
+            <Link href="/features" className="underline underline-offset-4 hover:text-effect transition-colors">here</Link>.
+          </p>
+        </div>
+      </section>
+
+      {/* --- SEKCJA 3: NEW RELEASES (Dane z Deezera) --- */}
       <section className="flex flex-col w-full max-w-266.25">
         <div className="w-full mb-6">
           <h2 className="font-orbitron font-bold text-[20px] text-text uppercase mb-1">NEW RELEASES</h2>
           <div className="w-full h-px bg-text"></div>
         </div>
-        <div className="flex justify-between w-full mb-5.5">
-          {newReleasesAlbums.map((album) => (
-            <div key={album.id} className="flex flex-col w-37.5">
-              <div className="relative w-37.5 h-37.5 border border-effect mb-2">
-                <Image src={album.coverUrl} alt={album.title} fill className="object-cover" />
+        
+        {newReleasesAlbums.length === 0 ? (
+          <p className="font-orbit text-text text-center my-10">Brak nowych wydań. Sprawdź połączenie z API.</p>
+        ) : (
+          <div className="flex justify-between w-full mb-5.5 gap-4 overflow-x-auto pb-4">
+            {/* Tutaj też mamy piękny, czysty typ zamiast 'any' */}
+            {newReleasesAlbums.map((album: { id: string; title: string; coverUrl: string }) => (
+              <div key={album.id} className="flex flex-col w-37.5 shrink-0">
+                <div className="relative w-37.5 h-37.5 border border-effect mb-2">
+                  {/* Używamy unoptimized, ponieważ obrazki z zewnętrznych API czasem sprawiają problemy przy formatowaniu Next.js w trybie deweloperskim */}
+                  <Image 
+                    src={album.coverUrl} 
+                    alt={album.title} 
+                    fill 
+                    unoptimized
+                    sizes="(max-width: 150px) 100vw, 150px"
+                    className="object-cover" 
+                  />
+                </div>
+                <h3 className="font-orbit text-text text-[16px] text-center leading-tight line-clamp-2">
+                  {album.title}
+                </h3>
               </div>
-              <h3 className="font-orbit text-text text-[16px] text-center leading-tight">{album.title}</h3>
-            </div>
-          ))}
-        </div>
-        <p className="font-orbit text-text text-[16px] text-center">
+            ))}
+          </div>
+        )}
+        
+        <p className="font-orbit text-text text-[16px] text-center mt-4">
           Check other new releases <Link href="/new-releases" className="underline hover:text-effect transition-colors">here</Link>.
         </p>
       </section>
 
-      {/* --- SEKCJA 3: REVIEWS --- */}
+      {/* --- SEKCJA 4: REVIEWS --- */}
       <section className="flex flex-col w-full max-w-266.25">
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full mb-6">
           
-          {/* KOLUMNA LEWA: LATEST SONG REVIEWS */}
           <div className="flex flex-col w-full">
             <div className="w-full mb-4">
               <h2 className="font-orbitron font-bold text-[20px] text-text uppercase mb-1">
@@ -155,7 +232,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* KOLUMNA PRAWA: LATEST ALBUM REVIEWS*/}
           <div className="flex flex-col w-full">
             <div className="w-full mb-4">
               <h2 className="font-orbitron font-bold text-[20px] text-text uppercase mb-1">
@@ -212,10 +288,9 @@ export default function Home() {
 
       </section>
 
-      {/* --- SEKCJA 4: RECENT NEWS --- */}
+      {/* --- SEKCJA 5: RECENT NEWS --- */}
       <section className="flex flex-col w-full max-w-266.25">
         
-        {/* Nagłówek i kreska */}
         <div className="w-full mb-6">
           <h2 className="font-orbitron font-bold text-[20px] text-text uppercase mb-1">
             RECENT NEWS
@@ -223,13 +298,10 @@ export default function Home() {
           <div className="w-full h-px bg-text"></div>
         </div>
 
-        {/* 3 Kolumny artykułów (siatka równo dzieląca 1065px na 3) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-6">
           {recentNews.map((news) => (
-            // Karta: wysokość 310px, overflow-hidden zapobiega wylewaniu się tła
             <div key={news.id} className="relative w-full h-77.5 overflow-hidden">
               
-              {/* Tło obrazkowe zajmujące CAŁĄ kartę */}
               <Image 
                 src={news.coverUrl} 
                 alt={news.title} 
@@ -237,8 +309,6 @@ export default function Home() {
                 className="object-cover" 
               />
               
-              {/* Prostokąt tekstowy nasunięty od dołu na 110px. Zostawia górne 200px obrazka! */}
-              {/* Zastosowano bg-text/90 dla lekko obniżonego krycia (90%) */}
               <div className="absolute bottom-0 w-full h-27.5 bg-text/90 p-4 flex flex-col justify-start">
                 <h3 className="font-orbitron font-bold text-[16px] text-brand mb-1">
                   {news.title}
@@ -252,7 +322,6 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Tekst na samym dole (Check out all of the news...) */}
         <div className="w-full text-center">
           <p className="font-orbit text-[16px] text-text">
             Check out all of the{" "}

@@ -4,10 +4,6 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-// W przyszłości tu zaimportujesz swoje komponenty, np:
-// import Navbar from "@/components/Navbar";
-// import Footer from "@/components/Footer";
-
 const orbitron = Orbitron({ subsets: ["latin"], variable: "--font-orbitron" });
 const orbit = Orbit({ weight: "400", subsets: ["latin"], variable: "--font-orbit" });
 
@@ -24,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       */}
       <body className={`${orbitron.variable} ${orbit.variable} antialiased min-h-screen flex flex-col bg-brand text-text`}>
         <Navbar />
-  
+
         <main className="flex-1">
           {children}
         </main>
