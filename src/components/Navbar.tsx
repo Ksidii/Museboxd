@@ -113,7 +113,7 @@ export default function Navbar() {
                     </Link>
                     <button 
                       onClick={handleLogout}
-                      className="px-4 py-3 font-orbit text-[16px] text-red-500 hover:bg-red-500/10 transition-colors text-left font-bold"
+                      className="px-4 py-3 font-orbit text-[16px] text-red-500 hover:bg-red-500/10 transition-colors text-left font-bold cursor-pointer"
                     >
                       Log Out
                     </button>
@@ -121,12 +121,15 @@ export default function Navbar() {
                 )}
               </div>
             ) : (
-              <Link 
-                href="/login" 
-                className="text-[20px] font-bold tracking-wide hover:text-effect transition-colors uppercase"
-              >
-                SIGN IN / LOG IN
-              </Link>
+              <div className="flex items-center gap-2 text-[20px] font-bold tracking-wide uppercase">
+                <Link href="/register" className="hover:text-effect transition-colors">
+                  SIGN IN
+                </Link>
+                <span className="text-white cursor-default">/</span>
+                <Link href="/login" className="hover:text-effect transition-colors">
+                  LOG IN
+                </Link>
+              </div>
             )}
           </div>
 
