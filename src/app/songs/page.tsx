@@ -68,7 +68,7 @@ export default function SongsPage() {
                 </p>
               </div>
 
-              {/* Album i Rok (Ukryte na bardzo małych ekranach) */}
+              {/* Album i Rok */}
               <div className="hidden md:flex flex-col w-48 shrink-0">
                 <p className="font-orbit text-[12px] text-text/60 truncate">Album: <span className="text-text/90">{song.album}</span></p>
                 <p className="font-orbit text-[12px] text-text/60">Year: <span className="text-text/90">{song.year}</span></p>

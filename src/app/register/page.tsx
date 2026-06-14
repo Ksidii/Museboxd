@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-// Importujemy nasz "most" do bazy danych
 import { supabase } from "@/lib/supabase"; 
 
 export default function RegisterPage() {

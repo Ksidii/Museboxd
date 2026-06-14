@@ -21,7 +21,6 @@ export default function ProfilePage() {
         
         {/* Banner */}
         <div className="w-full h-40 md:h-64 relative overflow-hidden">
-          {/* Używamy hero-image jako testowego bannera */}
           <Image src="/hero-image.jpg" alt="Profile Banner" fill className="object-cover" />
           <div className="absolute inset-0 bg-brand/30"></div> {/* Lekkie przyciemnienie */}
         </div>
@@ -58,7 +57,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="flex flex-col gap-3">
-              {/* Przykładowa karta recenzji z błękitnym tłem przypominającym projekt */}
+              {/* Karta recenzji piosenki*/}
               {[1, 2].map((item) => (
                 <div key={item} className="w-full bg-[#E5F4FA] text-brand relative border border-effect p-3 flex gap-3 h-28">
                   <div className="relative w-20 h-20 shrink-0 border border-brand/20">
@@ -101,7 +100,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="flex flex-col gap-3">
-              {/* Przykładowa karta recenzji albumu */}
+              {/* Karta recenzji albumu */}
               {[1, 2].map((item) => (
                 <div key={item} className="w-full bg-[#E5F4FA] text-brand relative border border-effect p-3 flex gap-3 h-28">
                   <div className="relative w-20 h-20 shrink-0 border border-brand/20">
@@ -139,7 +138,7 @@ export default function ProfilePage() {
             <div className="w-full h-px bg-text/50"></div>
           </div>
           <div className="flex gap-4 mb-2">
-            {/* Przykładowe okładki top albumów */}
+            {/* Przykładowe okładki albumów */}
             <div className="relative w-40 h-40 border border-effect"><Image src="/hero-image.jpg" alt="Album" fill className="object-cover" /></div>
             <div className="relative w-40 h-40 border border-effect"><Image src="/hero-image.jpg" alt="Album" fill className="object-cover" /></div>
           </div>

@@ -4,7 +4,6 @@ export default function NewsPage() {
   return (
     <div className="w-full flex flex-col items-center justify-center min-h-[70vh] px-4">
       <div className="flex flex-col items-center border-2 border-effect/50 bg-black p-12 md:p-20 relative">
-        {/* Dekoracyjne elementy narożne w stylu Twojego designu */}
         <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-effect"></div>
         <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-effect"></div>
         <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-effect"></div>
