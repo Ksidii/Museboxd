@@ -67,6 +67,41 @@ export default function ProfilePage() {
   const songReviews = reviews.filter((r) => r.item_type === "song");
   const albumReviews = reviews.filter((r) => r.item_type === "album");
 
+  // 1. TOP ALBUMS (sortowanie od najwyższej oceny, max 5)
+  const topAlbums = [...albumReviews]
+    .sort((a, b) => b.rating - a.rating)
+    .slice(0, 5);
+
+  // 2. TOP TRACKS (sortowanie od najwyższej oceny, max 5)
+  const topTracks = [...songReviews]
+    .sort((a, b) => b.rating - a.rating)
+    .slice(0, 5);
+
+  // 3. TOP ARTISTS (na podstawie pozytywnych ocen >= 4 z piosenek i albumów)
+  const artistStats = reviews
+    .filter((r) => r.rating >= 4)
+    .reduce<Record<string, { name: string; count: number; totalScore: number; cover: string }>>(
+      (acc, review) => {
+        const artistName = review.item_artist;
+        if (!acc[artistName]) {
+          acc[artistName] = {
+            name: artistName,
+            count: 0,
+            totalScore: 0,
+            cover: review.item_cover || "/hero-image.jpg",
+          };
+        }
+        acc[artistName].count += 1;
+        acc[artistName].totalScore += review.rating;
+        return acc;
+      },
+      {}
+    );
+
+  const topArtists = Object.values(artistStats)
+    .sort((a, b) => b.count - a.count || b.totalScore - a.totalScore)
+    .slice(0, 5);
+
   return (
     <div className="w-full flex flex-col items-center pb-20">
       
@@ -215,11 +250,32 @@ export default function ProfilePage() {
             <h2 className="font-orbitron font-bold text-[16px] text-text uppercase mb-1">TOP ALBUMS</h2>
             <div className="w-full h-px bg-text/50"></div>
           </div>
-          <div className="flex gap-4 mb-2">
-            <div className="relative w-40 h-40 border border-effect"><Image src="/hero-image.jpg" alt="Album" fill className="object-cover" /></div>
-            <div className="relative w-40 h-40 border border-effect"><Image src="/hero-image.jpg" alt="Album" fill className="object-cover" /></div>
-          </div>
-          <Link href="/top/albums" className="font-orbit text-[12px] text-text/70 underline underline-offset-2 hover:text-effect transition-colors mt-1">
+          {topAlbums.length > 0 ? (
+            <div className="flex flex-wrap gap-4 mb-2">
+              {topAlbums.map((album) => (
+                <Link
+                  key={album.id}
+                  href={`/albums/${album.item_id}`}
+                  className="relative w-40 h-40 border border-effect overflow-hidden group"
+                  title={`${album.item_title} (${album.rating}/5)`}
+                >
+                  <Image
+                    src={album.item_cover || "/hero-image.jpg"}
+                    alt={album.item_title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-brand/85 px-2 py-1 translate-y-full group-hover:translate-y-0 transition-transform">
+                    <p className="font-orbitron text-[10px] text-text truncate">{album.item_title}</p>
+                    <p className="font-orbit text-[10px] text-effect">★ {album.rating}/5</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="font-orbit text-[12px] text-text/50 mb-2">Rate some albums to see your top picks.</p>
+          )}
+          <Link href="/top/albums" className="font-orbit text-[12px] text-text/70 underline underline-offset-2 hover:text-effect transition-colors mt-1 w-fit">
             More albums...
           </Link>
         </div>
@@ -230,11 +286,36 @@ export default function ProfilePage() {
             <h2 className="font-orbitron font-bold text-[16px] text-text uppercase mb-1">TOP ARTISTS</h2>
             <div className="w-full h-px bg-text/50"></div>
           </div>
-          <div className="flex gap-4 mb-2">
-            <div className="relative w-40 h-40 border border-effect"><Image src="/hero-image.jpg" alt="Artist" fill className="object-cover" /></div>
-            <div className="relative w-40 h-40 border border-effect"><Image src="/hero-image.jpg" alt="Artist" fill className="object-cover" /></div>
-          </div>
-          <Link href="/top/artists" className="font-orbit text-[12px] text-text/70 underline underline-offset-2 hover:text-effect transition-colors mt-1">
+          {topArtists.length > 0 ? (
+            <div className="flex flex-wrap gap-4 mb-2">
+              {topArtists.map((artist) => (
+                <div
+                  key={artist.name}
+                  className="relative w-40 h-40 border border-effect overflow-hidden group"
+                >
+                  <Image
+                    src={artist.cover}
+                    alt={artist.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-brand/85 p-2 border-t border-effect/30">
+                    <p className="font-orbitron font-bold text-[11px] text-text truncate">
+                      {artist.name}
+                    </p>
+                    <p className="font-orbit text-[10px] text-effect">
+                      {artist.count} positive {artist.count === 1 ? "rating" : "ratings"}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="font-orbit text-[12px] text-text/50 mb-2">
+              Give 4 or 5 stars to songs and albums to unlock your top artists.
+            </p>
+          )}
+          <Link href="/top/artists" className="font-orbit text-[12px] text-text/70 underline underline-offset-2 hover:text-effect transition-colors mt-1 w-fit">
             More artists...
           </Link>
         </div>
@@ -245,17 +326,42 @@ export default function ProfilePage() {
             <h2 className="font-orbitron font-bold text-[16px] text-text uppercase mb-1">TOP TRACKS</h2>
             <div className="w-full h-px bg-text/50"></div>
           </div>
-          <div className="flex flex-col gap-2 bg-[#E5F4FA] p-4 text-brand">
-            {[1, 2, 3, 4, 5].map((track) => (
-              <div key={track} className="flex justify-between items-center border-b border-brand/20 pb-2 mb-2 last:border-0 last:mb-0 last:pb-0">
-                <p className="font-orbitron text-[12px]"><span className="font-bold">{track}</span> &nbsp; Sleepwalking <span className="font-orbit text-[10px]">by Bring Me the Horizon</span></p>
-                <div className="flex items-center gap-4">
-                  <p className="font-orbit text-[10px]">Album: <span className="font-bold">Sempiternal</span></p>
-                  <div className="relative w-6 h-6 border border-brand/50"><Image src="/hero-image.jpg" alt="Cover" fill className="object-cover" /></div>
-                </div>
-              </div>
-            ))}
-          </div>
+          {topTracks.length > 0 ? (
+            <div className="flex flex-col gap-2 bg-[#E5F4FA] p-4 text-brand">
+              {topTracks.map((track, index) => (
+                <Link
+                  key={track.id}
+                  href={`/songs/${track.item_id}`}
+                  className="flex justify-between items-center border-b border-brand/20 pb-2 mb-2 last:border-0 last:mb-0 last:pb-0 hover:bg-effect/10 transition-colors px-1"
+                >
+                  <p className="font-orbitron text-[12px] truncate pr-4">
+                    <span className="font-bold">{index + 1}</span> &nbsp; {track.item_title}{" "}
+                    <span className="font-orbit text-[10px]">by {track.item_artist}</span>
+                  </p>
+                  <div className="flex items-center gap-4 shrink-0">
+                    {track.item_album && (
+                      <p className="font-orbit text-[10px] hidden sm:block">
+                        Album: <span className="font-bold">{track.item_album}</span>
+                      </p>
+                    )}
+                    <span className="font-orbitron font-bold text-[11px] text-mark">
+                      ★ {track.rating}
+                    </span>
+                    <div className="relative w-6 h-6 border border-brand/50 shrink-0">
+                      <Image
+                        src={track.item_cover || "/hero-image.jpg"}
+                        alt={track.item_title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="font-orbit text-[12px] text-text/50">Rate some songs to see your top tracks.</p>
+          )}
           <Link href="/top/tracks" className="font-orbit text-[12px] text-text/70 underline underline-offset-2 hover:text-effect transition-colors mt-3 text-center">
             More tracks...
           </Link>
