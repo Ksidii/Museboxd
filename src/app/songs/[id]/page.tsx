@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import RateAction from "@/components/RateAction";
 
-// Funkcja pomocnicza (ta sama co na liście utworów)
+// Funkcja pomocnicza 
 const formatDuration = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
@@ -83,7 +83,16 @@ export default async function SongDetailsPage({
             <div className="flex flex-col sm:flex-row items-center gap-6 mt-auto w-full border-t border-effect/20 pt-6">
               
               {/* Nasz przycisk z okienkiem recenzji */}
-              <RateAction track={track} />
+              <RateAction 
+                item={{
+                  id: track.id,
+                  type: "song",
+                  title: track.title,
+                  artist: track.artist.name,
+                  cover: track.album.cover_medium,
+                  albumTitle: track.album.title
+                }} 
+              />
               
               {/* Natywny odtwarzacz audio (jeśli Deezer udostępnia demo) */}
               {track.preview && (

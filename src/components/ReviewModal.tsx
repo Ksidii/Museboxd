@@ -4,27 +4,22 @@ import { useState } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 
-// 1. Dodajemy interfejs opisujący dane piosenki z Deezera
-interface DeezerTrack {
+export interface ReviewItem {
   id: number;
+  type: "song" | "album";
   title: string;
-  artist: {
-    name: string;
-  };
-  album: {
-    title: string;
-    cover_medium: string;
-  };
+  artist: string;
+  cover: string;
+  albumTitle?: string;
 }
 
 interface ReviewModalProps {
   isOpen: boolean;
   onClose: () => void;
-  track: DeezerTrack;
+  item: ReviewItem;
 }
 
-export default function ReviewModal({ isOpen, onClose, track }: ReviewModalProps) {
-  // Stany komponentu
+export default function ReviewModal({ isOpen, onClose, item }: ReviewModalProps) {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
@@ -33,10 +28,8 @@ export default function ReviewModal({ isOpen, onClose, track }: ReviewModalProps
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  // Jeśli modal jest "zamknięty", w ogóle go nie renderujemy
   if (!isOpen) return null;
 
-  // Funkcja wysyłająca recenzję do bazy Supabase
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (rating === 0) {
@@ -47,7 +40,6 @@ export default function ReviewModal({ isOpen, onClose, track }: ReviewModalProps
     setIsSubmitting(true);
     setError(null);
 
-    // 1. Sprawdzamy, czy użytkownik jest na pewno zalogowany
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
@@ -56,19 +48,18 @@ export default function ReviewModal({ isOpen, onClose, track }: ReviewModalProps
       return;
     }
 
-    // 2. Zapisujemy dane do naszej nowej tabeli "reviews"
     const { error: dbError } = await supabase
       .from("reviews")
       .insert({
         user_id: user.id,
-        item_id: track.id.toString(),
-        item_type: "song",
+        item_id: item.id.toString(),
+        item_type: item.type,
         rating: rating,
         review_text: reviewText,
-        item_title: track.title,
-        item_artist: track.artist.name,
-        item_cover: track.album.cover_medium,
-        item_album: track.album.title
+        item_title: item.title,
+        item_artist: item.artist,
+        item_cover: item.cover,
+        item_album: item.albumTitle || null
       });
 
     if (dbError) {
@@ -76,9 +67,10 @@ export default function ReviewModal({ isOpen, onClose, track }: ReviewModalProps
       setError("Something went wrong. Try again.");
     } else {
       setSuccess(true);
-      // Opcjonalnie zamykamy okienko po 2 sekundach
       setTimeout(() => {
         setSuccess(false);
+        setRating(0);
+        setReviewText("");
         onClose();
       }, 2000);
     }
@@ -87,13 +79,8 @@ export default function ReviewModal({ isOpen, onClose, track }: ReviewModalProps
   };
 
   return (
-    // Tło przyciemniające resztę strony
     <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-      
-      {/* Główne okienko */}
       <div className="bg-[#050A15] border border-effect/50 p-6 w-full max-w-2xl flex flex-col relative">
-        
-        {/* Przycisk zamykania "X" */}
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 text-text/50 hover:text-effect transition-colors font-orbitron text-[20px]"
@@ -102,26 +89,24 @@ export default function ReviewModal({ isOpen, onClose, track }: ReviewModalProps
         </button>
 
         <h2 className="font-orbitron font-bold text-[24px] text-text uppercase mb-6">
-          I Watched... / I Listened...
+          Rate {item.type === "album" ? "Album" : "Song"}
         </h2>
 
-        {/* Informacje o piosence (miniaturka, tytuł) */}
         <div className="flex gap-4 mb-6 p-4 bg-effect/5 border border-effect/20">
           <div className="relative w-16 h-16 border border-brand/30 shrink-0">
             <Image 
-              src={track?.album?.cover_medium || "/hero-image.jpg"} 
-              alt="Cover" 
+              src={item.cover || "/hero-image.jpg"} 
+              alt={item.title} 
               fill 
               className="object-cover" 
             />
           </div>
           <div className="flex flex-col justify-center">
-            <h3 className="font-orbitron font-bold text-[18px] text-text">{track?.title}</h3>
-            <p className="font-orbit text-[14px] text-text/70">{track?.artist?.name}</p>
+            <h3 className="font-orbitron font-bold text-[18px] text-text">{item.title}</h3>
+            <p className="font-orbit text-[14px] text-text/70">{item.artist}</p>
           </div>
         </div>
 
-        {/* Formularz lub komunikat o sukcesie */}
         {success ? (
           <div className="py-10 text-center">
             <h3 className="font-orbitron text-brand text-[20px] mb-2">Review Logged!</h3>
@@ -129,8 +114,6 @@ export default function ReviewModal({ isOpen, onClose, track }: ReviewModalProps
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            
-            {/* Mechanika Gwiazdek */}
             <div className="flex flex-col gap-2">
               <label className="font-orbit text-[14px] text-text uppercase tracking-wide">
                 Your Rating
@@ -159,7 +142,6 @@ export default function ReviewModal({ isOpen, onClose, track }: ReviewModalProps
               </div>
             </div>
 
-            {/* Pole Tekstowe (Recenzja) */}
             <div className="flex flex-col gap-2">
               <label className="font-orbit text-[14px] text-text uppercase tracking-wide">
                 Review (Optional)
@@ -175,7 +157,6 @@ export default function ReviewModal({ isOpen, onClose, track }: ReviewModalProps
 
             {error && <p className="text-red-500 font-orbit text-[14px]">{error}</p>}
 
-            {/* Przycisk zapisu */}
             <div className="flex justify-end mt-2">
               <button 
                 type="submit" 
@@ -187,7 +168,6 @@ export default function ReviewModal({ isOpen, onClose, track }: ReviewModalProps
             </div>
           </form>
         )}
-
       </div>
     </div>
   );
