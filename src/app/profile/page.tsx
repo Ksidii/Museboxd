@@ -19,7 +19,7 @@ interface Review {
   created_at: string;
 }
 
-// Komponent gwiazdek (z Twojego kodu)
+// Komponent gwiazdek
 const StarRating = ({ rating }: { rating: number }) => (
   <div className="flex gap-1 text-effect">
     {[...Array(5)].map((_, i) => (
@@ -75,7 +75,7 @@ export default function ProfilePage() {
   // 2. TOP TRACKS (sortowanie od najwyższej oceny, max 5)
   const topTracks = [...songReviews]
     .sort((a, b) => b.rating - a.rating)
-    .slice(0, 5);
+    .slice(0, 10);
 
   // 3. TOP ARTISTS (na podstawie pozytywnych ocen >= 4 z piosenek i albumów)
   const artistStats = reviews
@@ -147,7 +147,7 @@ export default function ProfilePage() {
 
             <div className="flex flex-col gap-3">
               {songReviews.length > 0 ? (
-                songReviews.slice(0, 4).map((review) => (
+                songReviews.slice(0, 3).map((review) => (
                   <div key={review.id} className="w-full bg-[#E5F4FA] text-brand relative border border-effect p-3 flex gap-3 h-28">
                     <div className="relative w-20 h-20 shrink-0 border border-brand/20">
                       <Image src={review.item_cover || "/hero-image.jpg"} alt="Cover" fill className="object-cover" />
@@ -187,7 +187,7 @@ export default function ProfilePage() {
                 <p className="font-orbit text-[12px] text-text/50">No songs rated yet.</p>
               )}
             </div>
-            <Link href="/reviews/songs" className="font-orbit text-[12px] text-text/70 underline underline-offset-2 hover:text-effect transition-colors mt-3 text-center">
+            <Link href="/profile/library?tab=reviews" className="font-orbit text-[12px] text-text/70 underline underline-offset-2 hover:text-effect transition-colors mt-3 text-center">
               See all reviews...
             </Link>
           </div>
@@ -203,7 +203,7 @@ export default function ProfilePage() {
 
             <div className="flex flex-col gap-3">
               {albumReviews.length > 0 ? (
-                albumReviews.slice(0, 4).map((review) => (
+                albumReviews.slice(0, 3).map((review) => (
                   <div key={review.id} className="w-full bg-[#E5F4FA] text-brand relative border border-effect p-3 flex gap-3 h-28">
                     <div className="relative w-20 h-20 shrink-0 border border-brand/20">
                       <Image src={review.item_cover || "/hero-image.jpg"} alt="Cover" fill className="object-cover" />
@@ -275,7 +275,7 @@ export default function ProfilePage() {
           ) : (
             <p className="font-orbit text-[12px] text-text/50 mb-2">Rate some albums to see your top picks.</p>
           )}
-          <Link href="/top/albums" className="font-orbit text-[12px] text-text/70 underline underline-offset-2 hover:text-effect transition-colors mt-1 w-fit">
+          <Link href="/profile/library?tab=albums" className="font-orbit text-[12px] text-text/70 underline underline-offset-2 hover:text-effect transition-colors mt-1 w-fit">
             More albums...
           </Link>
         </div>
@@ -315,7 +315,7 @@ export default function ProfilePage() {
               Give 4 or 5 stars to songs and albums to unlock your top artists.
             </p>
           )}
-          <Link href="/top/artists" className="font-orbit text-[12px] text-text/70 underline underline-offset-2 hover:text-effect transition-colors mt-1 w-fit">
+          <Link href="/profile/library?tab=artists" className="font-orbit text-[12px] text-text/70 underline underline-offset-2 hover:text-effect transition-colors mt-1 w-fit">
             More artists...
           </Link>
         </div>
@@ -362,7 +362,7 @@ export default function ProfilePage() {
           ) : (
             <p className="font-orbit text-[12px] text-text/50">Rate some songs to see your top tracks.</p>
           )}
-          <Link href="/top/tracks" className="font-orbit text-[12px] text-text/70 underline underline-offset-2 hover:text-effect transition-colors mt-3 text-center">
+          <Link href="/profile/library?tab=tracks" className="font-orbit text-[12px] text-text/70 underline underline-offset-2 hover:text-effect transition-colors mt-3 text-center">
             More tracks...
           </Link>
         </div>
